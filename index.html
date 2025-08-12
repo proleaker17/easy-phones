@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Your iPhone</title>
+    <!-- Using Inter font for a modern look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- GLOBAL STYLES & VARIABLES --- */
+        :root {
+            --primary-bg: #faf8f5; /* Changed to a warmer color */
+            --card-bg: #ffffff;
+            --text-color: #1d1d1f;
+            --rating-color: #f5a623;
+            --border-color: #d2d2d7;
+            --accent-blue: #0071e3;
+            --sim-green: #34c759;
+            --sim-blue: #007aff;
+            --sim-red: #ff3b30;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* --- HEADER & SEARCH --- */
+        header {
+            max-width: 1200px;
+            margin: 0 auto 40px auto;
+            display: flex;
+            justify-content: center;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .search-icon {
+            width: 20px;
+            height: 20px;
+            fill: #86868b;
+            margin-right: 10px;
+        }
+
+        .search-bar input {
+            border: none;
+            outline: none;
+            background: none;
+            width: 100%;
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* --- PHONE GRID --- */
+        .phone-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .phone-card {
+            background-color: var(--card-bg);
+            border-radius: 18px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .phone-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            border-color: var(--border-color);
+        }
+
+        .phone-card img {
+            width: 100%;
+            height: 260px;
+            object-fit: contain;
+            margin-bottom: 20px;
+        }
+
+        .phone-card h3 {
+            margin: 10px 0;
+            font-size: 22px;
+        }
+
+        .rating {
+            color: var(--rating-color);
+            font-size: 20px;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .memory {
+            font-size: 14px;
+            color: #86868b;
+            margin-bottom: 15px;
+        }
+
+        .colors {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .color-swatch {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid #e8e8e8;
+        }
+
+        .sim-options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+            margin-top: auto;
+        }
+/* --- NEW SIM CARD SVG STYLES --- */
+        .sim-svg {
+            width: 55px;
+            height: 40px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            padding: 2px;
+        }
+        
+        .sim-svg .sim-body {
+            fill: #e0e0e0; /* Default grey plastic color */
+            transition: fill 0.3s ease;
+        }
+
+        .sim-svg .sim-chip-gold {
+            fill: #FFD700; /* Gold color */
+        }
+        .sim-svg .sim-chip-lines {
+            stroke: #DAA520; /* Darker gold for lines */
+            stroke-width: 1.5;
+            fill: none;
+        }
+        
+        .sim-svg.sim-green .sim-body { fill: var(--sim-green); }
+        .sim-svg.sim-blue .sim-body { fill: var(--sim-blue); }
+        .sim-svg.sim-red .sim-body { fill: var(--sim-red); }
+
+        /* --- MODAL WINDOW --- */
+        .hidden {
+            display: none !important;
+        }
+
+        #modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #modal-overlay.visible {
+            opacity: 1;
+        }
+
+        #modal-content {
+            background: var(--card-bg);
+            padding: 30px 40px;
+            border-radius: 20px;
+            text-align: center;
+            position: relative;
+            width: 90%;
+            max-width: 500px;
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+        
+        #modal-overlay.visible #modal-content {
+            transform: scale(1);
+        }
+
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 30px;
+            line-height: 1;
+            color: #aaa;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .close-button:hover {
+            color: var(--text-color);
+        }
+
+        #modal-img {
+            max-width: 80%;
+            max-height: 40vh;
+            margin-bottom: 20px;
+        }
+        
+        #modal-title {
+            margin-top: 0;
+            margin-bottom: 5px;
+        }
+
+        #modal-memory {
+            margin-top: 0;
+        }
+
+        .modal-sim-options {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .modal-sim-options .sim-svg.selected {
+            border-color: var(--accent-blue);
+            transform: scale(1.1);
+            background-color: #e5f1ff;
+        }
+        
+        /* --- NEW: MODAL COLOR STYLES --- */
+        .modal-colors {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 15px 0 25px 0;
+        }
+
+        .modal-colors .color-swatch {
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .modal-colors .color-swatch:hover {
+            transform: scale(1.1);
+        }
+
+        .modal-colors .color-swatch.selected {
+            border-color: var(--accent-blue);
+            transform: scale(1.15);
+            box-shadow: 0 0 15px rgba(0, 113, 227, 0.5);
+        }
+
+
+        #accept-button {
+            background-color: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 14px 45px;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s, opacity 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+#accept-button:disabled {
+            background-color: #a1a1a6;
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* --- BOX SEND-OFF ANIMATION --- */
+        #box-animation-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(245, 245, 247, 0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        .box {
+            width: 150px;
+            height: 150px;
+            position: relative;
+            animation: send-off-animation 2.5s forwards ease-in-out;
+        }
+        
+        @keyframes send-off-animation {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            20% {
+                transform: translateY(-20px) scale(1.05);
+            }
+            70% {
+                transform: translateY(-20px) scale(1.05);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-120vh) scale(0.2);
+                opacity: 0;
+            }
+        }
+        
+        .box-body {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transform-style: preserve-3d;
+            transform: rotateX(-20deg) rotateY(20deg);
+        }
+
+        .box-face {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #ccc;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+        }
+        
+        .front  { transform: translateZ(75px); }
+        .back   { transform: rotateY(180deg) translateZ(75px); }
+        .right  { transform: rotateY(90deg) translateZ(75px); }
+        .left   { transform: rotateY(-90deg) translateZ(75px); }
+        .top    { transform: rotateX(90deg) translateZ(75px); display: flex; justify-content: center; align-items: center; font-size: 80px; color: #d1d1d6; }
+        .bottom { transform: rotateX(-90deg) translateZ(75px); }
+        
+    </style>
+</head>
+<body>
+    
+    <header>
+        <div class="search-bar">
+            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            <input type="text" placeholder="Search">
+        </div>
+    </header>
+
+<main>
+        <div class="phone-grid">
+            <!-- Card 1: iPhone 16 Pro -->
+            <div class="phone-card" data-model="iPhone 16 Pro" data-img-src="https://doc.iwant.cz/pic/F2PD000K01-200-200.webp">
+                <img src="https://doc.iwant.cz/pic/F2PD000K01-200-200.webp" alt="Apple iPhone 16 Pro Desert Titanium">
+                <div>
+                    <h3>iPhone 16 Pro</h3>
+                    <div class="rating">★★★★★</div>
+                    <div class="memory">Storage: 512GB</div>
+                    <div class="colors">
+                        <span class="color-swatch" style="background-color: #f2f1ec;"></span>
+                        <span class="color-swatch" style="background-color: #3f4042;"></span>
+                        <span class="color-swatch" style="background-color: #fcefde;"></span>
+                        <span class="color-swatch" style="background-color: #faf2e9;"></span>
+                    </div>
+                </div>
+                <div class="sim-options">
+                    <svg class="sim-svg sim-green" viewBox="0 0 34 30">
+                        <path class="sim-body" d="M30,1 H5 C2.79,1 1,2.79 1,5 v20 c0,2.21 1.79,4 4,4 h22 l6,-6 V5 C33,2.79 31.21,1 29,1 Z" />
+                        <rect class="sim-chip-gold" x="8" y="8" width="18" height="14" rx="1.5" />
+                        <path class="sim-chip-lines" d="M17,8 v14 M8,15 h18 M12.5,8 v14 M21.5,8 v14"/>
+                    </svg>
+                    <svg class="sim-svg sim-blue" viewBox="0 0 34 30">
+                        <path class="sim-body" d="M30,1 H5 C2.79,1 1,2.79 1,5 v20 c0,2.21 1.79,4 4,4 h22 l6,-6 V5 C33,2.79 31.21,1 29,1 Z" />
+                        <rect class="sim-chip-gold" x="8" y="8" width="18" height="14" rx="1.5" />
+                        <path class="sim-chip-lines" d="M17,8 v14 M8,15 h18 M12.5,8 v14 M21.5,8 v14"/>
+                    </svg>
+                    <svg class="sim-svg sim-red" viewBox="0 0 34 30">
+                        <path class="sim-body" d="M30,1 H5 C2.79,1 1,2.79 1,5 v20 c0,2.21 1.79,4 4,4 h22 l6,-6 V5 C33,2.79 31.21,1 29,1 Z" />
+                        <rect class="sim-chip-gold" x="8" y="8" width="18" height="14" rx="1.5" />
+                        <path class="sim-chip-lines" d="M17,8 v14 M8,15 h18 M12.5,8 v14 M21.5,8 v14"/>
+                    </svg>
+                </div>
+            </div>
+
+<!-- Card 2: iPhone 15 -->
+            <div class="phone-card" data-model="iPhone 15" data-img-src="https://doc.iwant.cz/pic/WI39000601-200-200.webp">
+                <img src="https://doc.iwant.cz/pic/WI39000601-200-200.webp" alt="Apple iPhone 15 Black">
+                <div>
+                    <h3>iPhone 15</h3>
+                    <div class="rating">★★★★★</div>
+                    <div class="memory">Storage: 512GB</div>
+                    <div class="colors">
+                        <span class="color-swatch" style="background-color: #222222;"></span>
+                        <span class="color-swatch" style="background-color: #5fa3cd;"></span>
+                        <span class="color-swatch" style="background-color: #f7c0ce;"></span>
+                        <span class="color-swatch" style="background-color: #68bd6e;"></span>
+                        <span class="color-swatch" style="background-color: #ffd308;"></span>
+                    </div>
+                </div>
+                <div class="sim-options">
+                    <svg class="sim-svg sim-green" viewBox="0 0 34 30">
+                        <path class="sim-body" d="M30,1 H5 C2.79,1 1,2.79 1,5 v20 c0,2.21 1.79,4 4,4 h22 l6,-6 V5 C33,2.79 31.21,1 29,1 Z" />
+                        <rect class="sim-chip-gold" x="8" y="8" width="18" height="14" rx="1.5" />
+                        <path class="sim-chip-lines" d="M17,8 v14 M8,15 h18 M12.5,8 v14 M21.5,8 v14"/>
+                    </svg>
+                    <svg class="sim-svg sim-blue" viewBox="0 0 34 30">
+                        <path class="sim-body" d="M30,1 H5 C2.79,1 1,2.79 1,5 v20 c0,2.21 1.79,4 4,4 h22 l6,-6 V5 C33,2.79 31.21,1 29,1 Z" />
+                        <rect class="sim-chip-gold" x="8" y="8" width="18" height="14" rx="1.5" />
+                        <path class="sim-chip-lines" d="M17,8 v14 M8,15 h18 M12.5,8 v14 M21.5,8 v14"/>
+                    </svg>
+                    <svg class="sim-svg sim-red" viewBox="0 0 34 30">
+                        <path class="sim-body" d="M30,1 H5 C2.79,1 1,2.79 1,5 v20 c0,2.21 1.79,4 4,4 h22 l6,-6 V5 C33,2.79 31.21,1 29,1 Z" />
+                        <rect class="sim-chip-gold" x="8" y="8" width="18" height="14" rx="1.5" />
+                        <path class="sim-chip-lines" d="M17,8 v14 M8,15 h18 M12.5,8 v14 M21.5,8 v14"/>
+                    </svg>
+                </div>
+            </div>
+
+<!-- Card 3: iPhone 16 -->
+            <div class="phone-card" data-model="iPhone 16" data-img-src="https://doc.iwant.cz/pic/4b7ed1ac73c946d8ba80f21a60caab64-200-200.webp">
+                <img src="https://doc.iwant.cz/pic/4b7ed1ac73c946d8ba80f21a60caab64-200-200.webp" alt="Apple iPhone 16 Ultramarine">
+                <div>
+                    <h3>iPhone 16</h3>
+                    <div class="rating">★★★★★</div>
+                    <div class="memory">Storage: 512GB</div>
+                    <div class="colors">
+                        <span class="color-swatch" style="background-color: #ffffff;"></span>
+                        <span class="color-swatch" style="background-color: #222222;"></span>
+                        <span class="color-swatch" style="background-color: #5fa3cd;"></span>
+                        <span class="color-swatch" style="background-color: #f7c0ce;"></span>
+                        <span class="color-swatch" style="background-color: #a4b7fa;"></span>
+                    </div>
+                </div>
+                <div class="sim-options">
+                    <svg class="sim-svg sim-green" viewBox="0 0 34 30">
+                        <path class="sim-body" d="M30,1 H5 C2.79,1 1,2.79 1,5 v20 c0,2.21 1.79,4 4,4 h22 l6,-6 V5 C33,2.79 31.21,1 29,1 Z" />
+                        <rect class="sim-chip-gold" x="8" y="8" width="18" height="14" rx="1.5" />
+                        <path class="sim-chip-lines" d="M17,8 v14 M8,15 h18 M12.5,8 v14 M21.5,8 v14"/>
+                    </svg>
+                    <svg class="sim-svg sim-blue" viewBox="0 0 34 30">
+                        <path class="sim-body" d="M30,1 H5 C2.79,1 1,2.79 1,5 v20 c0,2.21 1.79,4 4,4 h22 l6,-6 V5 C33,2.79 31.21,1 29,1 Z" />
+                        <rect class="sim-chip-gold" x="8" y="8" width="18" height="14" rx="1.5" />
+                        <path class="sim-chip-lines" d="M17,8 v14 M8,15 h18 M12.5,8 v14 M21.5,8 v14"/>
+                    </svg>
+                    <svg class="sim-svg sim-red" viewBox="0 0 34 30">
+                        <path class="sim-body" d="M30,1 H5 C2.79,1 1,2.79 1,5 v20 c0,2.21 1.79,4 4,4 h22 l6,-6 V5 C33,2.79 31.21,1 29,1 Z" />
+                        <rect class="sim-chip-gold" x="8" y="8" width="18" height="14" rx="1.5" />
+                        <path class="sim-chip-lines" d="M17,8 v14 M8,15 h18 M12.5,8 v14 M21.5,8 v14"/>
+                    </svg>
+                </div>
+            </div>
+            
+            <!-- Card 4: iPhone 16e -->
+            <div class="phone-card" data-model="iPhone 16e" data-img-src="https://doc.iwant.cz/pic/60PD000K01-200-200.webp">
+                <img src="https://doc.iwant.cz/pic/60PD000K01-200-200.webp" alt="Apple iPhone 16e Black">
+                <div>
+                    <h3>iPhone 16e</h3>
+                    <div class="rating">★★★★★</div>
+                    <div class="memory">Storage: 512GB</div>
+                    <div class="colors">
+                        <span class="color-swatch" style="background-color: #ffffff;"></span>
+                        <span class="color-swatch" style="background-color: #222222;"></span>
+                    </div>
+                </div>
+                <div class="sim-options">
+                    <svg class="sim-svg sim-green" viewBox="0 0 34 30">
+                        <path class="sim-body" d="M30,1 H5 C2.79,1 1,2.79 1,5 v20 c0,2.21 1.79,4 4,4 h22 l6,-6 V5 C33,2.79 31.21,1 29,1 Z" />
+                        <rect class="sim-chip-gold" x="8" y="8" width="18" height="14" rx="1.5" />
+                        <path class="sim-chip-lines" d="M17,8 v14 M8,15 h18 M12.5,8 v14 M21.5,8 v14"/>
+                    </svg>
+                    <svg class="sim-svg sim-blue" viewBox="0 0 34 30">
+                        <path class="sim-body" d="M30,1 H5 C2.79,1 1,2.79 1,5 v20 c0,2.21 1.79,4 4,4 h22 l6,-6 V5 C33,2.79 31.21,1 29,1 Z" />
+                        <rect class="sim-chip-gold" x="8" y="8" width="18" height="14" rx="1.5" />
+
+<path class="sim-chip-lines" d="M17,8 v14 M8,15 h18 M12.5,8 v14 M21.5,8 v14"/>
+                    </svg>
+                    <svg class="sim-svg sim-red" viewBox="0 0 34 30">
+                        <path class="sim-body" d="M30,1 H5 C2.79,1 1,2.79 1,5 v20 c0,2.21 1.79,4 4,4 h22 l6,-6 V5 C33,2.79 31.21,1 29,1 Z" />
+                        <rect class="sim-chip-gold" x="8" y="8" width="18" height="14" rx="1.5" />
+                        <path class="sim-chip-lines" d="M17,8 v14 M8,15 h18 M12.5,8 v14 M21.5,8 v14"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Card 5: iPhone 16 Pro Black Titanium -->
+            <div class="phone-card" data-model="iPhone 16 Pro" data-img-src="https://doc.iwant.cz/pic/Z3PD000K01-200-200.webp">
+                <img src="https://doc.iwant.cz/pic/Z3PD000K01-200-200.webp" alt="Apple iPhone 16 Pro Black Titanium">
+                <div>
+                    <h3>iPhone 16 Pro</h3>
+                    <div class="rating">★★★★★</div>
+                    <div class="memory">Storage: 512GB</div>
+                    <div class="colors">
+                        <span class="color-swatch" style="background-color: #f2f1ec;"></span>
+                        <span class="color-swatch" style="background-color: #3f4042;"></span>
+                        <span class="color-swatch" style="background-color: #fcefde;"></span>
+                        <span class="color-swatch" style="background-color: #faf2e9;"></span>
+                    </div>
+                </div>
+                <div class="sim-options">
+                    <svg class="sim-svg sim-green" viewBox="0 0 34 30">
+                        <path class="sim-body" d="M30,1 H5 C2.79,1 1,2.79 1,5 v20 c0,2.21 1.79,4 4,4 h22 l6,-6 V5 C33,2.79 31.21,1 29,1 Z" />
+                        <rect class="sim-chip-gold" x="8" y="8" width="18" height="14" rx="1.5" />
+                        <path class="sim-chip-lines" d="M17,8 v14 M8,15 h18 M12.5,8 v14 M21.5,8 v14"/>
+                    </svg>
+                    <svg class="sim-svg sim-blue" viewBox="0 0 34 30">
+                        <path class="sim-body" d="M30,1 H5 C2.79,1 1,2.79 1,5 v20 c0,2.21 1.79,4 4,4 h22 l6,-6 V5 C33,2.79 31.21,1 29,1 Z" />
+                        <rect class="sim-chip-gold" x="8" y="8" width="18" height="14" rx="1.5" />
+                        <path class="sim-chip-lines" d="M17,8 v14 M8,15 h18 M12.5,8 v14 M21.5,8 v14"/>
+                    </svg>
+                    <svg class="sim-svg sim-red" viewBox="0 0 34 30">
+                        <path class="sim-body" d="M30,1 H5 C2.79,1 1,2.79 1,5 v20 c0,2.21 1.79,4 4,4 h22 l6,-6 V5 C33,2.79 31.21,1 29,1 Z" />
+                        <rect class="sim-chip-gold" x="8" y="8" width="18" height="14" rx="1.5" />
+                        <path class="sim-chip-lines" d="M17,8 v14 M8,15 h18 M12.5,8 v14 M21.5,8 v14"/>
+                    </svg>
+                </div>
+            </div>
+
+<!-- Card 6: iPhone 15 Blue -->
+            <div class="phone-card" data-model="iPhone 15" data-img-src="https://doc.iwant.cz/pic/6J39000601-200-200.webp">
+                <img src="https://doc.iwant.cz/pic/6J39000601-200-200.webp" alt="Apple iPhone 15 Blue">
+                <div>
+                    <h3>iPhone 15</h3>
+                    <div class="rating">★★★★★</div>
+                    <div class="memory">Storage: 512GB</div>
+                    <div class="colors">
+                        <span class="color-swatch" style="background-color: #222222;"></span>
+                        <span class="color-swatch" style="background-color: #5fa3cd;"></span>
+                        <span class="color-swatch" style="background-color: #f7c0ce;"></span>
+                        <span class="color-swatch" style="background-color: #68bd6e;"></span>
+                        <span class="color-swatch" style="background-color: #ffd308;"></span>
+                    </div>
+                </div>
+                <div class="sim-options">
+                    <svg class="sim-svg sim-green" viewBox="0 0 34 30">
+                        <path class="sim-body" d="M30,1 H5 C2.79,1 1,2.79 1,5 v20 c0,2.21 1.79,4 4,4 h22 l6,-6 V5 C33,2.79 31.21,1 29,1 Z" />
+                        <rect class="sim-chip-gold" x="8" y="8" width="18" height="14" rx="1.5" />
+                        <path class="sim-chip-lines" d="M17,8 v14 M8,15 h18 M12.5,8 v14 M21.5,8 v14"/>
+                    </svg>
+                    <svg class="sim-svg sim-blue" viewBox="0 0 34 30">
+                        <path class="sim-body" d="M30,1 H5 C2.79,1 1,2.79 1,5 v20 c0,2.21 1.79,4 4,4 h22 l6,-6 V5 C33,2.79 31.21,1 29,1 Z" />
+                        <rect class="sim-chip-gold" x="8" y="8" width="18" height="14" rx="1.5" />
+                        <path class="sim-chip-lines" d="M17,8 v14 M8,15 h18 M12.5,8 v14 M21.5,8 v14"/>
+                    </svg>
+                    <svg class="sim-svg sim-red" viewBox="0 0 34 30">
+                        <path class="sim-body" d="M30,1 H5 C2.79,1 1,2.79 1,5 v20 c0,2.21 1.79,4 4,4 h22 l6,-6 V5 C33,2.79 31.21,1 29,1 Z" />
+                        <rect class="sim-chip-gold" x="8" y="8" width="18" height="14" rx="1.5" />
+                        <path class="sim-chip-lines" d="M17,8 v14 M8,15 h18 M12.5,8 v14 M21.5,8 v14"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Window (initially hidden) -->
+    <div id="modal-overlay" class="hidden">
+        <div id="modal-content">
+            <span class="close-button">&times;</span>
+            <img id="modal-img" src="" alt="Selected Phone">
+            <h2 id="modal-title"></h2>
+            <p id="modal-memory" class="memory"></p>
+            
+            <p>Select a color:</p>
+            <div class="modal-colors">
+                <!-- Colors will be dynamically inserted here -->
+            </div>
+
+<p>Select a SIM card:</p>
+            <div class="modal-sim-options">
+                 <svg class="sim-svg sim-green" viewBox="0 0 34 30">
+                    <path class="sim-body" d="M30,1 H5 C2.79,1 1,2.79 1,5 v20 c0,2.21 1.79,4 4,4 h22 l6,-6 V5 C33,2.79 31.21,1 29,1 Z" />
+                    <rect class="sim-chip-gold" x="8" y="8" width="18" height="14" rx="1.5" />
+                    <path class="sim-chip-lines" d="M17,8 v14 M8,15 h18 M12.5,8 v14 M21.5,8 v14"/>
+                </svg>
+                <svg class="sim-svg sim-blue" viewBox="0 0 34 30">
+                    <path class="sim-body" d="M30,1 H5 C2.79,1 1,2.79 1,5 v20 c0,2.21 1.79,4 4,4 h22 l6,-6 V5 C33,2.79 31.21,1 29,1 Z" />
+                    <rect class="sim-chip-gold" x="8" y="8" width="18" height="14" rx="1.5" />
+                    <path class="sim-chip-lines" d="M17,8 v14 M8,15 h18 M12.5,8 v14 M21.5,8 v14"/>
+                </svg>
+                <svg class="sim-svg sim-red" viewBox="0 0 34 30">
+                    <path class="sim-body" d="M30,1 H5 C2.79,1 1,2.79 1,5 v20 c0,2.21 1.79,4 4,4 h22 l6,-6 V5 C33,2.79 31.21,1 29,1 Z" />
+                    <rect class="sim-chip-gold" x="8" y="8" width="18" height="14" rx="1.5" />
+                    <path class="sim-chip-lines" d="M17,8 v14 M8,15 h18 M12.5,8 v14 M21.5,8 v14"/>
+                </svg>
+            </div>
+            <button id="accept-button" disabled>Confirm Selection</button>
+        </div>
+    </div>
+    
+    <!-- Box Animation Container (initially hidden) -->
+    <div id="box-animation-container" class="hidden">
+        <div class="box">
+            <div class="box-body">
+                <div class="box-face top"></div>
+                <div class="box-face bottom"></div>
+                <div class="box-face left"></div>
+                <div class="box-face right"></div>
+                <div class="box-face front"></div>
+                <div class="box-face back"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const phoneCards = document.querySelectorAll('.phone-card');
+            const modalOverlay = document.getElementById('modal-overlay');
+            const closeModalButton = document.querySelector('.close-button');
+            const modalImg = document.getElementById('modal-img');
+            const modalTitle = document.getElementById('modal-title');
+            const modalMemory = document.getElementById('modal-memory');
+            const modalColors = document.querySelector('.modal-colors');
+            const modalSimOptions = document.querySelector('.modal-sim-options');
+            const acceptButton = document.getElementById('accept-button');
+            const boxAnimationContainer = document.getElementById('box-animation-container');
+
+            const openModal = (card) => {
+                const model = card.dataset.model;
+                const imgSrc = card.dataset.imgSrc;
+                const memory = card.querySelector('.memory').textContent;
+                
+                modalTitle.textContent = model;
+                modalImg.src = imgSrc;
+                modalImg.alt = model;
+                modalMemory.textContent = memory;
+
+                // --- Handle colors ---
+                const cardColorsContainer = card.querySelector('.colors');
+                modalColors.innerHTML = cardColorsContainer.innerHTML; // Copy color swatches
+
+                // Add click listeners to the new swatches in the modal
+                modalColors.querySelectorAll('.color-swatch').forEach(swatch => {
+                    swatch.addEventListener('click', () => {
+                        modalColors.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+                        swatch.classList.add('selected');
+                    });
+                });
+                
+                modalOverlay.classList.remove('hidden');
+                setTimeout(() => modalOverlay.classList.add('visible'), 10);
+            };
+const closeModal = () => {
+                modalOverlay.classList.remove('visible');
+                setTimeout(() => {
+                    modalOverlay.classList.add('hidden');
+                    resetModalState();
+                }, 300);
+            };
+            
+            const resetModalState = () => {
+                modalSimOptions.querySelectorAll('.sim-svg').forEach(sim => sim.classList.remove('selected'));
+                modalColors.innerHTML = ''; // Clear the swatches
+                acceptButton.disabled = true;
+            };
+
+            phoneCards.forEach(card => {
+                card.addEventListener('click', () => openModal(card));
+            });
+
+            closeModalButton.addEventListener('click', closeModal);
+
+            modalOverlay.addEventListener('click', (event) => {
+                if (event.target === modalOverlay) {
+                    closeModal();
+                }
+            });
+
+            modalSimOptions.querySelectorAll('.sim-svg').forEach(sim => {
+                sim.addEventListener('click', () => {
+                    modalSimOptions.querySelectorAll('.sim-svg').forEach(s => s.classList.remove('selected'));
+                    sim.classList.add('selected');
+                    acceptButton.disabled = false;
+                });
+            });
+
+            acceptButton.addEventListener('click', () => {
+                if (acceptButton.disabled) return;
+
+                closeModal();
+
+                boxAnimationContainer.classList.remove('hidden');
+
+                setTimeout(() => {
+                    boxAnimationContainer.classList.add('hidden');
+                }, 2500);
+            });
+        });
+    </script>
+</body>
+</html>
